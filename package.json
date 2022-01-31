@@ -1,0 +1,22 @@
+{
+  "name": "mph-deposit-twitter-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "dotenv": "^14.3.2",
+    "graphql": "^16.2.0",
+    "graphql-request": "^3.7.0",
+    "oauth": "^0.9.15",
+    "oauth-1.0a": "^2.2.6",
+    "twitter-api-client": "^1.5.1",
+    "twitter-api-v2": "^1.9.1"
+  }
+}
