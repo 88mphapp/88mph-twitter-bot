@@ -24,7 +24,9 @@ async function imageUpload(){
     accessTokenSecret: process.env.TWITTER_ACCESS_SECRET
   });
 
-  let image = await fs.readFileSync('../Downloads/SundayYieldReview.png').toString('base64')
+  randomImageArray = ["SundayYieldReview.png"]
+
+  let image = await fs.readFileSync("./tweet_images/" + randomImageArray[Math.floor(Math.random()*0)]).toString('base64')
   data = await userClient.media.mediaUpload({media_data:image}).then().catch((err) => console.log(err))
   return data
 }
@@ -41,20 +43,20 @@ async function tweetDeposit(tweet){
 
   let media = await imageUpload()
   const data = userClient.tweetsV2.createTweet({"text":tweet,"media": {"media_ids": [media.media_id_string]}}).then((data) => console.log(data)).catch((data)=>console.log(data))
-  console.log(tweet)
 }
 
 function generateDepositTweet(pool,poolInfo,depositNumber,chain){
   const secondsInYear = 31556952
-  let fixedRate = (((Number(pool.deposits[depositNumber].interestRate) * secondsInYear )/(Number(pool.deposits[depositNumber].depositLength)))*100).toFixed(4)
+  let fixedRate = (((Number(pool.deposits[depositNumber].interestRate) * secondsInYear )/(Number(pool.deposits[depositNumber].depositLength)))*100).toFixed(3)
+  let mphRewards = (Number(pool.poolDepositorRewardMintMultiplier)*(Number(pool.deposits[depositNumber].depositLength)*(Number(pool.deposits[depositNumber].amount))))
   const maturationDate =  String(new Date(pool.deposits[depositNumber].maturationTimestamp*1000).toLocaleString('en-US', {
           timeZone: 'UTC',
           timeZoneName: 'short',
         })).split(' ')[0].replaceAll(',','')
-  let tweet = "New deposit on $MPH!! 🚀\n" + Number(pool.deposits[depositNumber].amount).toFixed(4) + " $" +  poolInfo.stablecoinSymbol  
-   + " has been put to work in the " + "$" + poolInfo.protocol.toUpperCase() + " protocol\n" + 
-   "Earning " + fixedRate + "%" + " APR on " + chain.toUpperCase() + " until " + maturationDate + "\n" +
-   "Start earning fixed APR 🤑, speculating on yield 💸 , and letting DeFi work for you 💰💰💰 at https://88mph.app \n"
+  let tweet = "New deposit on $MPH! 🚀\n" + Number(pool.deposits[depositNumber].amount).toFixed(4) + " $" +  poolInfo.stablecoinSymbol  
+   + " put to work in the " + "$" + poolInfo.protocol.toUpperCase() + " protocol\n" + "Earning "  +
+   + fixedRate + "%" + " APR and " + mphRewards.toFixed(2) + " $MPH on "+ chain.toUpperCase() + " until " + maturationDate + "\n" +
+   "Start earning fixed APR 🤑, speculating on yield 💸 , & letting DeFi work for you 💰💰💰 at https://88mph.app \n"
 
   return tweet
 }
@@ -109,6 +111,7 @@ async function main() {
     {
       dpools {
         address
+        poolDepositorRewardMintMultiplier
         deposits (
           where: {
             depositTimestamp_gte: "${currentTime}",
